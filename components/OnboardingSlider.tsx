@@ -1,26 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Dimensions, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedScrollHandler, useDerivedValue } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useDerivedValue,
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
+
 const slides = [
   { title: 'Welcome to Our App!' },
   { title: 'Generate Invites Easily' },
-  { title: 'Share Everywhere' }
+  { title: 'Share Everywhere' },
 ];
 
-const OnboardingSlider = (onDone) => {
+const OnboardingSlider = ({ onDone }) => {
   const scrollX = useSharedValue(0);
   const maxScrollX = (slides.length - 1) * width;
-
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollX.value = event.contentOffset.x;
-    }
+    },
   });
 
-  
+  const hasReachedEnd = useDerivedValue(() => {
+    return scrollX.value >= maxScrollX;
+  });
+
+  useEffect(() => {
+    if (hasReachedEnd.value) {
+      onDone();
+    }
+  }, [hasReachedEnd.value]);
 
   return (
     <Animated.ScrollView
@@ -43,12 +55,14 @@ const styles = StyleSheet.create({
   slide: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#353d36', // your background color
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-  }
+    color: '#CECECE', // your text color
+  },
 });
 
 export default OnboardingSlider;
